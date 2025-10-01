@@ -173,7 +173,7 @@ wifi:
   on_connect:
     then:
       - lvgl.widget.update:
-          id: [wifi_connect_label, wifi_connect_label2]
+          id: wifi_connect_label
           hidden: false
       - rtttl.play: ${Wifi_Connect_Sound}
       - globals.set:
@@ -187,10 +187,11 @@ wifi:
           else:
             - lvgl.page.show: numbers_page
       - lvgl.widget.hide: boot_screen
+      - lvgl.widget.show: [status_bar_top, status_bar_bottom]
   on_disconnect:
     then:
       - lvgl.widget.update:
-          id: [wifi_connect_label, wifi_connect_label2]
+          id: wifi_connect_label
           hidden: true
       - rtttl.play: ${Wifi_Disconnect_Sound}
       - globals.set:
@@ -223,7 +224,7 @@ ble_client:
     on_connect:
       then:
         - lvgl.widget.update:
-            id: [g32bt_connect_label, g32bt_connect_label2]
+            id: g32bt_connect_label
             hidden: false
         - lvgl.widget.show: g32bt_connect_label
         - rtttl.play: 'Pling2:d=16,o=6,b=140:e6,32p,d6'
@@ -238,10 +239,11 @@ ble_client:
             else:
               - lvgl.page.show: numbers_page
         - lvgl.widget.hide: boot_screen
+        - lvgl.widget.show: [status_bar_top, status_bar_bottom]
     on_disconnect:
       then:
         - lvgl.widget.update:
-            id: [g32bt_connect_label, g32bt_connect_label2]
+            id: g32bt_connect_label
             hidden: true
         - lvgl.widget.hide: [zone1_label, zone2_label, zone3_label, zone4_label]
         - lvgl.widget.hide: [sensor1_label, sensor2_label, sensor3_label, sensor4_label]
@@ -646,8 +648,8 @@ lvgl:
 
       # style for gas
     - id: gas_obj_style
-      width: 478
-      height: 25
+      width: 480
+      height: 22
       bg_color: 0
       text_color: 0xffffff
       pad_all: 0
@@ -714,7 +716,210 @@ lvgl:
                 indicator:
                   arc_color: 0x00ff00
                   arc_width: 6
-
+      - obj:
+          id: status_bar_top
+          x: 0
+          y: 0
+          width: 480
+          height: 22
+          bg_color: 0
+          bg_opa: COVER
+          pad_all: 0
+          border_width: 0
+          hidden: "true"
+          radius: 0
+          widgets:            
+            - label: # symbol for successfull BT connection
+                x: 00
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0xffffff
+                text_align: LEFT
+                width: 50
+                text: "G32"
+            - obj: # symbol for batter low warning
+                id: battery_symbol_obj
+                x: 420
+                y: 0
+                width: 60
+                height: 22
+                bg_color: 0
+                pad_all: 0
+                outline_width: 0
+                border_width: 0
+                border_side: NONE
+                radius: 0
+                hidden: ${Hide_Battery_Symbol}
+                widgets:
+                  # symbol for battery low warning
+                  - line:
+                      id: battery_symbol
+                      points:
+                        - 12, 2
+                        - 18, 2
+                        - 17, 2
+                        - 17, 4
+                        - 17, 3
+                        - 20, 3
+                        - 19, 3
+                        - 19, 20
+                        - 19, 19
+                        - 10, 19
+                        - 11, 19
+                        - 11, 2
+                        - 11, 3
+                        - 14, 3
+                      line_width: 2
+                      line_rounded: false
+                      line_color: !lambda |-
+                        if( id(battery_soc_value) <= id(min_soc_value) ) { return lv_color_hex(0xff0000); } else { return lv_color_hex(0x00ff00); }
+                  - bar:
+                      id: battery_bar
+                      x: 12
+                      y: 3
+                      height: 15
+                      width: 6
+                      radius: 0
+                      min_value: 0
+                      max_value: 100
+                      bg_color: 0
+                      # for some unknown reason this code does not work!
+                      indicator:
+                        bg_color:  !lambda |-
+                          if( id(battery_soc_value) <= id(min_soc_value) ) {
+                            return lv_color_hex(0xff0000); // red
+                            } else {
+                            return lv_color_hex(0x00ff00); // green
+                          }
+                        radius: 0
+                      # end of not working code!
+                      value: !lambda return id(battery_soc_value);
+                  - label:
+                      id: battery_soc_label
+                      x: 25
+                      y: 3
+                      text_font: MONTSERRAT_14
+                      text_align: CENTER
+                      width: 35
+                      text_color: !lambda |-
+                        if( id(battery_soc_value) <= id(min_soc_value) ) {
+                          return lv_color_hex(0xff0000); // red
+                          } else {
+                          return lv_color_hex(0x00ff00); // green
+                        }
+                      text: !lambda |-
+                        return (to_string(static_cast<int>(id(battery_soc_value)))+"%").c_str();
+            - label: # symbol for successfull BT connection
+                id: g32bt_connect_label
+                x: 390
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0x00ff00
+                text_align: CENTER
+                width: 30
+                text: "\uF293" # BT symbol
+                hidden: true
+            - label: # symbol for successfull WIFI connection
+                id: wifi_connect_label
+                x: 360
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0x00ff00
+                text_align: CENTER
+                width: 30
+                text: "\uF1EB" # WIFI symbol
+                hidden: true
+            - label: # symbol for 'light on'
+                id: light_on_label
+                x: 330
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0xffff00
+                text_align: CENTER
+                width: 30
+                text: "\uF0E7" # lightning
+                hidden: true
+            - label: # symbol for 'firebox open'
+                id: firebox_open_label
+                x: 300
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0x00ff00
+                text_align: CENTER
+                width: 30
+                text: "\uF093" # arrow up
+                hidden: true        
+            - label: # symbol for gas low warning
+                id: g32_warning_label
+                x: 120
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0xff0000
+                text_align: CENTER
+                width: 30
+                text: "\uF071" # invertiertes Ausrufungszeichen
+                hidden: true
+            - label: # time hours:minutes:seconds
+                id: display_time
+                x: 200
+                y: 0
+                text_font: MONTSERRAT_20
+                text_color: 0xffffff
+                text_align: LEFT
+                width: 100
+                text: "00:00:00"
+                hidden: true
+      - obj:
+          id: status_bar_bottom
+          x: 0
+          y: 298
+          width: 480
+          height: 22
+          bg_color: 0
+          bg_opa: COVER
+          pad_all: 0
+          border_width: 0
+          radius: 0
+          hidden: "true"
+          widgets:
+            # gas object with gas values in % and g
+            - obj:
+                id: gas_obj
+                x: 0
+                y: 0
+                styles: gas_obj_style
+                widgets:
+                  - label:
+                      x: 24
+                      y: 0
+                      text_font: MONTSERRAT_18
+                      text_align: LEFT
+                      text: 'Gas:'
+                  - label:
+                      id: gas_percent_label
+                      x: 260
+                      y: 0
+                      text_font: MONTSERRAT_18
+                      text: '-- %'
+                  - label:
+                      id: gas_weight_label
+                      x: 358
+                      y: 0
+                      text_font: MONTSERRAT_18
+                      text: '--- g'
+                  - bar:
+                      id: gas_percent_bar
+                      x: 80
+                      y: 5
+                      height: 12
+                      width: 200
+                      radius: 5
+                      min_value: 1
+                      max_value: 100
+                      bg_color: 0xffffff
+                      indicator:
+                        bg_color: ${Gas_Bar_Color}
+                      value: 0
   # pages
   pages:
     # main page with arcs
@@ -1360,197 +1565,6 @@ lvgl:
                     } else {
                       return (0);
                     }
-
-        # gas object with gas values in % and g
-        - obj:
-            id: gas_obj
-            x: 0
-            y: 294
-            styles: gas_obj_style
-            widgets:
-              - label:
-                  x: 24
-                  y: 0
-                  text_font: MONTSERRAT_18
-                  text_align: LEFT
-                  text: 'Gas:'
-              - label:
-                  id: gas_percent_label
-                  x: 260
-                  y: 0
-                  text_font: MONTSERRAT_18
-                  text: '-- %'
-              - label:
-                  id: gas_weight_label
-                  x: 358
-                  y: 0
-                  text_font: MONTSERRAT_18
-                  text: '--- g'
-              - bar:
-                  id: gas_percent_bar
-                  x: 80
-                  y: 5
-                  height: 12
-                  width: 200
-                  radius: 5
-                  min_value: 1
-                  max_value: 100
-                  bg_color: 0xffffff
-                  indicator:
-                    bg_color: ${Gas_Bar_Color}
-                  value: 0
-
-        # symbol for battery low warning
-        - obj:
-            id: battery_symbol_obj
-            x: 420
-            y: 0
-            width: 60
-            height: 24
-            bg_color: 0
-            pad_all: 0
-            outline_width: 0
-            outline_color: 0
-            border_width: 0
-            border_color: 0
-            border_side: NONE
-            outline_pad: 0
-            radius: 0
-            hidden: ${Hide_Battery_Symbol}
-            widgets:
-              - line:
-                  id: battery_symbol
-                  points:
-                    - 12, 2
-                    - 18, 2
-                    - 17, 2
-                    - 17, 4
-                    - 17, 3
-                    - 20, 3
-                    - 19, 3
-                    - 19, 20
-                    - 19, 19
-                    - 10, 19
-                    - 11, 19
-                    - 11, 2
-                    - 11, 3
-                    - 14, 3
-                  line_width: 2
-                  line_rounded: false
-                  line_color: !lambda |-
-                    if( id(battery_soc_value) <= id(min_soc_value) ) {
-                      return lv_color_hex(0xff0000); // red
-                      } else {
-                      return lv_color_hex(0x00ff00); // green
-                    }
-              - bar:
-                  id: battery_bar
-                  x: 12
-                  y: 3
-                  height: 15
-                  width: 6
-                  radius: 0
-                  min_value: 0
-                  max_value: 100
-                  bg_color: 0
-                  # for some unknown reason this code does not work!
-                  indicator:
-                    bg_color:  !lambda |-
-                      if( id(battery_soc_value) <= id(min_soc_value) ) {
-                        return lv_color_hex(0xff0000); // red
-                        } else {
-                        return lv_color_hex(0x00ff00); // green
-                      }
-                    radius: 0
-                  # end of not working code!
-                  value: !lambda return id(battery_soc_value);
-              - label:
-                  id: battery_soc_label
-                  x: 25
-                  y: 3
-                  text_font: MONTSERRAT_14
-                  text_align: CENTER
-                  width: 35
-                  text_color: !lambda |-
-                    if( id(battery_soc_value) <= id(min_soc_value) ) {
-                      return lv_color_hex(0xff0000); // red
-                      } else {
-                      return lv_color_hex(0x00ff00); // green
-                    }
-                  text: !lambda |-
-                    return (to_string(static_cast<int>(id(battery_soc_value)))+"%").c_str();
-
-        # symbol for successfull BT connection
-        - label:
-            id: g32bt_connect_label
-            x: 390
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF293" # BT symbol
-            hidden: true
-
-        # symbol for successfull WIFI connection
-        - label:
-            id: wifi_connect_label
-            x: 360
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF1EB" # WIFI symbol
-            hidden: true
-
-        # symbol for 'light on'
-        - label:
-            id: light_on_label
-            x: 330
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0xffff00
-            text_align: CENTER
-            width: 30
-            text: "\uF0E7" # lightning
-            hidden: true
-
-        # symbol for 'firebox open'
-        - label:
-            id: firebox_open_label
-            x: 300
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF093" # arrow up
-            hidden: true
-
-        # symbol for gas low warning
-        - label:
-            id: g32_warning_label
-            x: 120
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0xff0000
-            text_align: CENTER
-            width: 30
-            text: "\uF071" # invertiertes Ausrufungszeichen
-            hidden: true
-
-          # time string hours:minutes
-        - label:
-            id: display_time
-            x: 200
-            y: 0
-            text_font: MONTSERRAT_20
-            text_color: 0xffffff
-            text_align: LEFT
-            width: 100
-            text: "00:00:00"
-            hidden: true
 
     # main page with numbers
     - id: numbers_page
@@ -2251,196 +2265,6 @@ lvgl:
                       return ("---");
                     }
 
-        # gas object with gas values in % and g
-        - obj:
-            id: gas_obj2
-            x: 0
-            y: 294
-            styles: gas_obj_style
-            widgets:
-              - label:
-                  x: 12
-                  y: 0
-                  text_font: MONTSERRAT_20
-                  text_align: LEFT
-                  text: 'Gas:'
-              - label:
-                  id: gas_percent_label2
-                  x: 260
-                  y: 0
-                  text_font: MONTSERRAT_20
-                  text: '-- %'
-              - label:
-                  id: gas_weight_label2
-                  x: 344
-                  y: 0
-                  text_font: MONTSERRAT_20
-                  text_align: right
-                  text: '--- g'
-              - bar:
-                  id: gas_percent_bar2
-                  x: 80
-                  y: 6
-                  height: 12
-                  width: 200
-                  radius: 5
-                  min_value: 1
-                  max_value: 100
-                  bg_color: 0xffffff
-                  indicator:
-                    bg_color: ${Gas_Bar_Color2}
-                  value: 0
-
-        # symbol for battery low warning
-        - obj:
-            id: battery_symbol_obj2
-            x: 420
-            y: 0
-            width: 60
-            height: 24
-            bg_color: 0
-            pad_all: 0
-            outline_width: 0
-            outline_color: 0
-            border_width: 0
-            border_color: 0
-            border_side: NONE
-            outline_pad: 0
-            radius: 0
-            hidden: ${Hide_Battery_Symbol}
-            widgets:
-              - line:
-                  id: battery_symbol2
-                  points:
-                    - 12, 2
-                    - 18, 2
-                    - 17, 2
-                    - 17, 4
-                    - 17, 3
-                    - 20, 3
-                    - 19, 3
-                    - 19, 20
-                    - 19, 19
-                    - 10, 19
-                    - 11, 19
-                    - 11, 2
-                    - 11, 3
-                    - 14, 3
-                  line_width: 2
-                  line_rounded: false
-                  line_color: !lambda |-
-                    if( id(battery_soc_value) <= id(min_soc_value) ) {
-                      return lv_color_hex(0xff0000); // red
-                      } else {
-                      return lv_color_hex(0xffffff); // white
-                    }
-              - bar:
-                  id: battery_bar2
-                  x: 12
-                  y: 3
-                  height: 15
-                  width: 6
-                  radius: 0
-                  min_value: 0
-                  max_value: 100
-                  bg_color: 0
-                  indicator:
-                    radius: 0
-                    bg_color:  !lambda |-
-                      if( id(battery_soc_value) <= id(min_soc_value) ) {
-                        return lv_color_hex(0xff0000); // red
-                        } else {
-                        return lv_color_hex(0xffffff); // white
-                      }
-                  value: !lambda return id(battery_soc_value);
-              - label:
-                  id: battery_soc_label2
-                  x: 25
-                  y: 3
-                  text_font: MONTSERRAT_14
-                  text_align: CENTER
-                  width: 35
-                  text_color: !lambda |-
-                    if( id(battery_soc_value) <= id(min_soc_value) ) {
-                      return lv_color_hex(0xff0000); // red
-                      } else {
-                      return lv_color_hex(0xffffff); // white
-                    }
-                  text: !lambda |-
-                    return (to_string(static_cast<int>(id(battery_soc_value)))+"%").c_str();
-
-        # symbol for successfull BT connection
-        - label:
-            id: g32bt_connect_label2
-            x: 390
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF293" # BT symbol
-            hidden: true
-
-        # symbol for successfull WIFI connection
-        - label:
-            id: wifi_connect_label2
-            x: 360
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF1EB" # WIFI symbol
-            hidden: true
-
-        # symbol for 'light on'
-        - label:
-            id: light_on_label2
-            x: 330
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0xffff00
-            text_align: CENTER
-            width: 30
-            text: "\uF0E7" # lightning
-            hidden: true
-
-        # symbol for 'firebox open'
-        - label:
-            id: firebox_open_label2
-            x: 300
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0x00ff00
-            text_align: CENTER
-            width: 30
-            text: "\uF093" # arrow up
-            hidden: true
-
-        # time string hours:minutes
-        - label:
-            id: display_time2
-            x: 200
-            y: 0
-            text_font: MONTSERRAT_20
-            text_color: 0xffffff
-            text_align: LEFT
-            width: 100
-            text: "00:00:00"
-            hidden: true
-
-        # symbol for gas low warning
-        - label:
-            id: g32_warning_label2
-            x: 120
-            y: 0
-            text_font: MONTSERRAT_18
-            text_color: 0xff0000
-            text_align: CENTER
-            width: 30
-            text: "\uF071" # invertiertes Ausrufungszeichen
-            hidden: true
-
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: timer_page
       skip: true
@@ -2884,7 +2708,6 @@ sensor:
     on_value:
       - lambda: id(battery_soc_value) = x;
       - lvgl.widget.refresh: [battery_soc_label, battery_symbol, battery_bar]
-      - lvgl.widget.refresh: [battery_soc_label2, battery_symbol2, battery_bar2]
       - lvgl.bar.update:
           id: battery_bar
           indicator:
@@ -2893,15 +2716,6 @@ sensor:
                 return lv_color_hex(0xff0000); // red
                 } else {
                 return lv_color_hex(0x00ff00); // green
-              }
-      - lvgl.bar.update:
-          id: battery_bar2
-          indicator:
-            bg_color:  !lambda |-
-              if( id(battery_soc_value) <= id(min_soc_value) ) {
-                return lv_color_hex(0xff0000); // red
-                } else {
-                return lv_color_hex(0xffffff); // white
               }
 
   - platform: ble_rssi
@@ -3042,7 +2856,7 @@ sensor:
     icon: "mdi:weight-gram"
     on_value:
       - lvgl.label.update:
-          id: [gas_weight_label, gas_weight_label2]
+          id: gas_weight_label
           text: !lambda |-
             if(x >= 11000) {return ("11000 g");
             } else {
@@ -3057,14 +2871,14 @@ sensor:
     icon: "mdi:gas-cylinder"
     on_value:
       - lvgl.label.update:
-          id: [gas_percent_label, gas_percent_label2]
+          id: gas_percent_label
           text: !lambda |-
             if(x > 100) {return ("---");
             } else {
               return (to_string(static_cast<int>(x)) + " %").c_str();
             }
       - lvgl.bar.update:
-          id: [gas_percent_bar, gas_percent_bar2]
+          id: gas_percent_bar
           value: !lambda |-
             if(x > 100) {return (100);
             } else {
@@ -3079,15 +2893,16 @@ sensor:
               } else {
                 return lv_color_hex(${Gas_Bar_Color});
               }
-      - lvgl.bar.update:
-          id: gas_percent_bar2
-          indicator:
-            bg_color: !lambda |-
-              if( x <= id(min_gas_value) ) {
-                return lv_color_hex(${Gas_Bar_Low_Color2});
-              } else {
-                return lv_color_hex(${Gas_Bar_Color2});
-              }
+      # old alternative gas bar update
+      # - lvgl.bar.update:
+      #     id: gas_percent_bar2
+      #     indicator:
+      #       bg_color: !lambda |-
+      #         if( x <= id(min_gas_value) ) {
+      #           return lv_color_hex(${Gas_Bar_Low_Color2});
+      #         } else {
+      #           return lv_color_hex(${Gas_Bar_Color2});
+      #         }
 
 
 binary_sensor:
@@ -3117,7 +2932,7 @@ binary_sensor:
     icon: "mdi:light-flood-down"
     on_state:
       - lvgl.label.update:
-          id: [light_on_label, light_on_label2]
+          id: light_on_label
           hidden: !lambda return(!x);
 
   - platform: template
@@ -3127,21 +2942,21 @@ binary_sensor:
     icon: "mdi:door"
     on_state:
       - lvgl.label.update:
-          id: [firebox_open_label, firebox_open_label2]
+          id: firebox_open_label
           hidden: !lambda return(!x);
 
 script:
   - id: time_update
     then:
       - lvgl.label.update:
-          id: [display_time, display_time2]
+          id: display_time
           text: !lambda |-
             static char time_buf[16];
             auto now = id(ha_time).now();
             snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", now.hour, now.minute, now.second);
             return time_buf;
       - lvgl.label.update:
-          id: [display_time, display_time2]
+          id: display_time
           hidden: !lambda |-
             return (!id(show_time));
 
