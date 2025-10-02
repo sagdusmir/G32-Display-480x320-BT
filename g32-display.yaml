@@ -5,7 +5,7 @@ substitutions:
 # Name des ESPHome Geräts (kann frei gewählt werden, keine Sonderzeichen)
   name: g32-display-bt90
   device_description: "Monitor an OW G32 grill"
-  version: "1.4.0"
+  version: "1.5.0"
 
 # Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
 # oder zum Auslesen unten den 'esp32_ble_tracker:' entkommentieren
@@ -730,7 +730,7 @@ lvgl:
           radius: 0
           widgets:            
             - label: # symbol for successfull BT connection
-                x: 00
+                x: 12
                 y: 0
                 text_font: MONTSERRAT_18
                 text_color: 0xffffff
@@ -924,6 +924,8 @@ lvgl:
   pages:
     # main page with arcs
     - id: arcs_page
+      bg_color: 0
+      bg_opa: COVER
       pad_all: 0
       on_swipe_left:
         then:
@@ -946,19 +948,11 @@ lvgl:
                   animation: OUT_RIGHT
                   time: 600ms
       widgets:
-        # one common headline for all temperature zones
-        - label:
-            x: 12
-            y: 0
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "Zonen"
-
         # zone 1 object with Headline, Labels and Arc
         - obj:
             id: zone1_obj
             x: 0
-            y: 30
+            y: 45
             styles: temp_obj_style
             widgets:
               - label:
@@ -1027,7 +1021,7 @@ lvgl:
         - obj:
             id: zone2_obj
             x: 120
-            y: 30
+            y: 45
             styles: temp_obj_style
             widgets:
               - label:
@@ -1096,7 +1090,7 @@ lvgl:
         - obj:
             id: zone3_obj
             x: 240
-            y: 30
+            y: 45
             styles: temp_obj_style
             widgets:
               - label:
@@ -1165,7 +1159,7 @@ lvgl:
         - obj:
             id: zone4_obj
             x: 360
-            y: 30
+            y: 45
             styles: temp_obj_style
             widgets:
               - label:
@@ -1230,40 +1224,12 @@ lvgl:
                       return 0;
                     }
 
-        # one common headline for all sensors
-        - label:
-            id: sensors_headline
-            x: 12
-            y: 140
-            width: 460
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "Temperatursensoren"
-            hidden: !lambda return (id(active_sensors) == 0);
-
-        # timer
-        - label:
-            id: timer_value
-            x: 380
-            y: 140
-            width: 100
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "--:--:--"
-            hidden: ${Disable_Timer}
-            clickable: 'true'
-            on_press:
-              - lambda: |-
-                  id(page_index) = 1;
-              - lvgl.page.show: timer_page
-
         # sensor 1 object with Headline, Labels and Arc
         - obj:
             id: sensor1_obj
             x: 0
-            y: 176
+            y: 184
             styles: temp_obj_style
-            radius: 50
             hidden: !lambda |-
               if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
                 id(active_sensors) |= 0x01;
@@ -1339,7 +1305,7 @@ lvgl:
         - obj:
             id: sensor2_obj
             x: 120
-            y: 176
+            y: 184
             styles: temp_obj_style
             hidden: !lambda |-
               if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -1416,7 +1382,7 @@ lvgl:
         - obj:
             id: sensor3_obj
             x: 240
-            y: 176
+            y: 184
             styles: temp_obj_style
             hidden: !lambda |-
               if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -1493,7 +1459,7 @@ lvgl:
         - obj:
             id: sensor4_obj
             x: 360
-            y: 176
+            y: 184
             styles: temp_obj_style
             hidden: !lambda |-
               if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -1566,9 +1532,46 @@ lvgl:
                       return (0);
                     }
 
+        # common headlines zones and sensors
+        - label:
+            x: 12
+            y: 23
+            bg_opa: COVER
+            text_font: MONTSERRAT_20
+            text_align: left
+            text: "Zonen"
+        - label:
+            id: sensors_headline
+            x: 12
+            y: 160
+            bg_opa: COVER
+            width: 460
+            text_font: MONTSERRAT_20
+            text_align: left
+            text: "Temperatursensoren"
+            hidden: !lambda return (id(active_sensors) == 0);
+
+        # timer
+        - label:
+            id: timer_value
+            x: 380
+            y: 160
+            width: 100
+            bg_opa: COVER
+            text_font: MONTSERRAT_20
+            text_align: left
+            text: "--:--:--"
+            hidden: ${Disable_Timer}
+            clickable: 'true'
+            on_press:
+              - lambda: |-
+                  id(page_index) = 1;
+              - lvgl.page.show: timer_page
+
     # main page with numbers
     - id: numbers_page
       pad_all: 0
+      bg_opa: COVER
       on_swipe_left:
         then:
           if:
@@ -1590,19 +1593,11 @@ lvgl:
                   animation: OUT_RIGHT
                   time: 600ms
       widgets:
-        # one common headline for all zones
-        - label:
-            x: 12
-            y: 0
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "Zonen"
-
         # zone 1 object with Labels and line
         - obj:
             id: zone1_obj2
             x: 6
-            y: 28
+            y: 47
             styles: zone_obj_style
             widgets:
               - line:
@@ -1674,7 +1669,7 @@ lvgl:
         - obj:
             id: zone2_obj2
             x: 126
-            y: 28
+            y: 47
             styles: zone_obj_style
             widgets:
               - line:
@@ -1746,7 +1741,7 @@ lvgl:
         - obj:
             id: zone3_obj2
             x: 246
-            y: 28
+            y: 47
             styles: zone_obj_style
             widgets:
               - line:
@@ -1818,7 +1813,7 @@ lvgl:
         - obj:
             id: zone4_obj2
             x: 366
-            y: 28
+            y: 47
             styles: zone_obj_style
             widgets:
               - line:
@@ -1886,46 +1881,15 @@ lvgl:
                       return ("---");
                     }
 
-        # one common headline for all sensors
-        - label:
-            id: sensors_headline2
-            x: 12
-            y: 140
-            width: 460
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "Temperatursensoren"
-            hidden: !lambda |-
-              if( id(active_sensors) == 0 ) {
-                return true;
-              } else {
-                return false;
-              }
-
-        # timer
-        - label:
-            id: timer_value2
-            x: 380
-            y: 140
-            width: 100
-            text_font: MONTSERRAT_20
-            text_align: left
-            text: "--:--:--"
-            hidden: ${Disable_Timer}
-            clickable: 'true'
-            on_press:
-              - lambda: |-
-                  id(page_index) = 2;
-              - lvgl.page.show: timer_page
-
         # grey rectangle which combines the sensor objects
         - obj:
             id: sensors_obj2
             x: 6
-            y: 168
+            y: 184
             width: 464
             height: 112
             bg_color: 0x333333
+            bg_opa: COVER
             pad_all: 0
             outline_width: 0
             outline_color: 0
@@ -1934,18 +1898,13 @@ lvgl:
             border_side: NONE
             outline_pad: 0
             radius: 10
-            hidden: !lambda |-
-              if( id(active_sensors) == 0 ) {
-                return true;
-              } else {
-                return false;
-              }
+            hidden: !lambda return (id(active_sensors) == 0);
 
         # sensor 1 object with Labels and line
         - obj:
             id: sensor1_obj2
             x: 10
-            y: 172
+            y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
               if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -2026,7 +1985,7 @@ lvgl:
         - obj:
             id: sensor2_obj2
             x: 127
-            y: 172
+            y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
               if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -2107,7 +2066,7 @@ lvgl:
         - obj:
             id: sensor3_obj2
             x: 245
-            y: 172
+            y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
               if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -2188,7 +2147,7 @@ lvgl:
         - obj:
             id: sensor4_obj2
             x: 362
-            y: 172
+            y: 189
             styles: sensor_obj_style
             hidden: !lambda |-
               if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -2264,6 +2223,42 @@ lvgl:
                     } else {
                       return ("---");
                     }
+
+        # common headlines zones and sensors
+        - label:
+            x: 12
+            y: 23
+            bg_opa: COVER
+            text_font: MONTSERRAT_20
+            text_align: left
+            text: "Zonen"
+        - label:
+            id: sensors_headline2
+            x: 12
+            y: 160
+            bg_opa: COVER
+            width: 460
+            text_font: MONTSERRAT_20
+            text_align: left
+            text: "Temperatursensoren"
+            hidden: !lambda return (id(active_sensors) == 0);
+
+        # timer
+        - label:
+            id: timer_value2
+            x: 380
+            y: 160
+            width: 100
+            bg_opa: COVER
+            text_font: MONTSERRAT_20
+            text_align: left
+            text: "--:--:--"
+            hidden: ${Disable_Timer}
+            clickable: 'true'
+            on_press:
+              - lambda: |-
+                  id(page_index) = 2;
+              - lvgl.page.show: timer_page
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: timer_page
