@@ -2298,17 +2298,39 @@ lvgl:
         - label:
             id: timer_headline_label
             x: 0
-            y: 10
-            width: 440
-            text_font: MONTSERRAT_26
-            text_align: LEFT
-            text: "Timer:"
+            y: 40
+            width: 480
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "Timer"
+
+        - label:
+            x: 125
+            y: 70
+            width: 50
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "H"
+        - label:
+            x: 220
+            y: 70
+            width: 50
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "M"
+        - label:
+            x: 315
+            y: 70
+            width: 50
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "S"
 
         - roller:
             id: timer_roller_h
-            x: 135
+            x: 120
             y: 100
-            width: 50
+            width: 60
             text_font: MONTSERRAT_20
             options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
             selected:
@@ -2316,13 +2338,7 @@ lvgl:
             on_value:
               - lambda: |-
                   id(helper_h) = x;
-        - label:
-            x: 135
-            y: 70
-            width: 50
-            text_font: MONTSERRAT_20
-            text_align: CENTER
-            text: "H"
+
         - label:
             x: 185
             y: 154
@@ -2335,23 +2351,16 @@ lvgl:
             id: timer_roller_m
             x: 215
             y: 100
-            width: 50
+            width: 60
             text_font: MONTSERRAT_20
-            options: ['00','01','02','03','04','05','06','07','08','09',10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]
+            options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
             selected:
               bg_color: 0x555555
             on_value:
               - lambda: |-
                   id(helper_m) = x;
         - label:
-            x: 215
-            y: 70
-            width: 50
-            text_font: MONTSERRAT_20
-            text_align: CENTER
-            text: "M"
-        - label:
-            x: 265
+            x: 280
             y: 154
             width: 30
             text_font: MONTSERRAT_20
@@ -2360,35 +2369,29 @@ lvgl:
 
         - roller:
             id: timer_roller_s
-            x: 295
+            x: 310
             y: 100
-            width: 50
+            width: 60
             text_font: MONTSERRAT_20
-            options: ['00','01','02','03','04','05','06','07','08','09',10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]
+            options: ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55','56','57','58','59']
             selected:
               bg_color: 0x555555
             on_value:
               - lambda: |-
                   id(helper_s) = x;
-        - label:
-            x: 295
-            y: 70
-            width: 50
-            text_font: MONTSERRAT_20
-            text_align: CENTER
-            text: "S"
 
         - button:
-            x: 200
-            y: 260
-            width: 80
-            height: 40
+            x: 12
+            y: 60
+            width: 70
+            height: 200
             bg_color: 0x555555
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "CLR"
+                  bg_color: 0x555555
             on_click:
               then:
                 - lvgl.roller.update:
@@ -2402,16 +2405,17 @@ lvgl:
                     id(timer_active) = false;
 
         - button:
-            x: 370
-            y: 260
-            width: 80
-            height: 40
+            x: 398
+            y: 60
+            width: 70
+            height: 200
             bg_color: 0x555555
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "OK"
+                  bg_color: 0x555555                  
             on_click:
               - lambda: |-
                   id(timer_h) = id(helper_h);
