@@ -2912,6 +2912,10 @@ sensor:
     characteristic_uuid: 'dc0f41e2-b6ae-46a8-a19e-1a3bf4342bcb'
     update_interval: 10s
     lambda: |-
+      if (x.size() < 32) {
+        ESP_LOGW("ble", "Received invalid BLE data (size: %d), skipping.", x.size());
+        return {};
+      }
       float t = (x[6]*10.0+x[7]/10.0);
       id(g32_zone1).publish_state(t);
       t = (x[8]*10.0+x[9]/10.0);
