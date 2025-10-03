@@ -143,6 +143,8 @@ esp32:
   framework:
     type: esp-idf
     sdkconfig_options:
+      # CONFIG_ESP_TASK_WDT_EN: n  # Disables Task Watchdog Timer (TWDT)
+      # CONFIG_ESP_INT_WDT: n      # Disables Interrupt Watchdog Timer (IWDT)
       CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
       CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
       CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
@@ -161,6 +163,7 @@ logger:
 api:
   encryption:
     key: ${api_encryption_key}
+  reboot_timeout: 0s
 
 ota:
   - platform: esphome
@@ -170,6 +173,7 @@ wifi:
   ssid: ${wifi_ssid}
   password: ${wifi_password}
   fast_connect: True
+  reboot_timeout: 0s
   on_connect:
     then:
       - lvgl.widget.update:
