@@ -958,7 +958,7 @@ lvgl:
         - obj:
             id: zone1_obj
             x: 0
-            y: 45
+            y: 52
             styles: temp_obj_style
             widgets:
               - label:
@@ -1027,7 +1027,7 @@ lvgl:
         - obj:
             id: zone2_obj
             x: 120
-            y: 45
+            y: 52
             styles: temp_obj_style
             widgets:
               - label:
@@ -1096,7 +1096,7 @@ lvgl:
         - obj:
             id: zone3_obj
             x: 240
-            y: 45
+            y: 52
             styles: temp_obj_style
             widgets:
               - label:
@@ -1165,7 +1165,7 @@ lvgl:
         - obj:
             id: zone4_obj
             x: 360
-            y: 45
+            y: 52
             styles: temp_obj_style
             widgets:
               - label:
@@ -1234,7 +1234,7 @@ lvgl:
         - obj:
             id: sensor1_obj
             x: 0
-            y: 184
+            y: 191
             styles: temp_obj_style
             hidden: !lambda |-
               if( (id(sensor1_value) < 1500) || (id(sensor1_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -1311,7 +1311,7 @@ lvgl:
         - obj:
             id: sensor2_obj
             x: 120
-            y: 184
+            y: 191
             styles: temp_obj_style
             hidden: !lambda |-
               if( (id(sensor2_value) < 1500) || (id(sensor2_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -1388,7 +1388,7 @@ lvgl:
         - obj:
             id: sensor3_obj
             x: 240
-            y: 184
+            y: 191
             styles: temp_obj_style
             hidden: !lambda |-
               if( (id(sensor3_value) < 1500) || (id(sensor3_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -1465,7 +1465,7 @@ lvgl:
         - obj:
             id: sensor4_obj
             x: 360
-            y: 184
+            y: 191
             styles: temp_obj_style
             hidden: !lambda |-
               if( (id(sensor4_value) < 1500) || (id(sensor4_limit_value) > 0) || (id(hide_inactive_sensors) == false) ) {
@@ -1543,7 +1543,7 @@ lvgl:
             x: 12
             y: 23
             bg_opa: COVER
-            text_font: MONTSERRAT_20
+            text_font: MONTSERRAT_16
             text_align: left
             text: "Zonen"
         - label:
@@ -1552,7 +1552,7 @@ lvgl:
             y: 160
             bg_opa: COVER
             width: 460
-            text_font: MONTSERRAT_20
+            text_font: MONTSERRAT_16
             text_align: left
             text: "Temperatursensoren"
             hidden: !lambda return (id(active_sensors) == 0);
@@ -1560,12 +1560,12 @@ lvgl:
         # timer
         - label:
             id: timer_value
-            x: 380
+            x: 318
             y: 160
-            width: 100
+            width: 150
             bg_opa: COVER
-            text_font: MONTSERRAT_20
-            text_align: left
+            text_font: MONTSERRAT_18
+            text_align: right
             text: "--:--:--"
             hidden: ${Disable_Timer}
             clickable: 'true'
@@ -2259,7 +2259,7 @@ lvgl:
             x: 12
             y: 23
             bg_opa: COVER
-            text_font: MONTSERRAT_20
+            text_font: MONTSERRAT_16
             text_align: left
             text: "Zonen"
         - label:
@@ -2268,7 +2268,7 @@ lvgl:
             y: 160
             bg_opa: COVER
             width: 460
-            text_font: MONTSERRAT_20
+            text_font: MONTSERRAT_16
             text_align: left
             text: "Temperatursensoren"
             hidden: !lambda return (id(active_sensors) == 0);
@@ -2280,7 +2280,7 @@ lvgl:
             y: 160
             width: 100
             bg_opa: COVER
-            text_font: MONTSERRAT_20
+            text_font: MONTSERRAT_18
             text_align: left
             text: "--:--:--"
             hidden: ${Disable_Timer}
