@@ -9,7 +9,9 @@ substitutions:
 
 # Bluetooth MAC des G32 (z.B. zu finden mit der App nrf_Connect)
 # oder zum Auslesen unten den 'esp32_ble_tracker:' entkommentieren
-  g32_mac_address: 94:E6:86:0A:27:52
+#  g32_mac_address: "94:E6:86:xx:xx:xx"
+# oder die Werte aus der secrets.yaml benutzen:
+  g32_mac_address: !secret g32_mac_address
 
 # Credentials des eigenen Wifi Netzwerks einfügen:
 #  wifi_ssid: "my_wifi_ssid"
