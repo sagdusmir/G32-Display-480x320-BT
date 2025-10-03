@@ -588,7 +588,7 @@ lvgl:
     label:
       text_color: 0xFFFFFF
       bg_color: 0
-      bg_opa: TRANSP
+      bg_opa: COVER
       width: 120
       text_align: center
     bar:
@@ -1617,14 +1617,16 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
               - label:
                   id: zone1_label2
-                  x: 0
+                  x: 5
                   y: 8
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_34
                   text_color: !lambda |-
                     if( (id(zone1_limit_value) == 0) || (id(zone1_value) < id(zone1_limit_value)) ) {
@@ -1659,9 +1661,10 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
               - label:
                   id: zone1_limit_label2
-                  x: 0
+                  x: 5
                   y: 64
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -1689,14 +1692,16 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
               - label:
                   id: zone2_label2
-                  x: 0
+                  x: 5
                   y: 8
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_34
                   text_color: !lambda |-
                     if( (id(zone2_limit_value) == 0) || (id(zone2_value) < id(zone2_limit_value)) ) {
@@ -1731,9 +1736,10 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
               - label:
                   id: zone2_limit_label2
-                  x: 0
+                  x: 5
                   y: 64
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -1761,14 +1767,16 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
               - label:
                   id: zone3_label2
-                  x: 0
+                  x: 5
                   y: 8
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_34
                   text_color: !lambda |-
                     if( (id(zone3_limit_value) == 0) || (id(zone3_value) < id(zone3_limit_value)) ) {
@@ -1803,9 +1811,10 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
               - label:
                   id: zone3_limit_label2
-                  x: 0
+                  x: 5
                   y: 64
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -1833,14 +1842,16 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
               - label:
                   id: zone4_label2
-                  x: 0
+                  x: 5
                   y: 8
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_34
                   text_color: !lambda |-
                     if( (id(zone4_limit_value) == 0) || (id(zone4_value) < id(zone4_limit_value)) ) {
@@ -1875,9 +1886,10 @@ lvgl:
                     - lvgl.page.show: sensor_limits_page
               - label:
                   id: zone4_limit_label2
-                  x: 0
+                  x: 5
                   y: 64
-                  width: 100
+                  width: 90
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -1894,8 +1906,8 @@ lvgl:
             y: 184
             width: 464
             height: 112
-            bg_color: 0x333333
             bg_opa: COVER
+            bg_color: 0x333333
             pad_all: 0
             outline_width: 0
             outline_color: 0
@@ -1932,6 +1944,7 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
@@ -1940,6 +1953,7 @@ lvgl:
                   x: 0
                   y: 8
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
                     if( (id(sensor1_value) < 1500) && (id(sensor1_value) > 0) ) {
@@ -1978,6 +1992,7 @@ lvgl:
                   x: 0
                   y: 64
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -2013,6 +2028,7 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
@@ -2021,6 +2037,7 @@ lvgl:
                   x: 0
                   y: 8
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
                     if( (id(sensor2_value) < 1500) && (id(sensor2_value) > 0) ) {
@@ -2059,6 +2076,7 @@ lvgl:
                   x: 0
                   y: 64
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -2094,6 +2112,7 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
@@ -2102,6 +2121,7 @@ lvgl:
                   x: 0
                   y: 8
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
                     if( (id(sensor3_value) < 1500) && (id(sensor3_value) > 0) ) {
@@ -2140,6 +2160,7 @@ lvgl:
                   x: 0
                   y: 64
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
@@ -2175,6 +2196,7 @@ lvgl:
                   x: 78
                   y: 42
                   width: 24
+                  bg_color: 0x333333
                   text_font: MONTSERRAT_18
                   text_color: 0x888888
                   text: '°C'
@@ -2183,6 +2205,7 @@ lvgl:
                   x: 0
                   y: 8
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_34
                   text: !lambda |-
                     if( (id(sensor4_value) < 1500) && (id(sensor4_value) > 0) ) {
@@ -2221,6 +2244,7 @@ lvgl:
                   x: 0
                   y: 64
                   width: 100
+                  bg_opa: TRANSP
                   text_font: MONTSERRAT_24
                   text_color: ${Limit_text_Color}
                   text: !lambda |-
