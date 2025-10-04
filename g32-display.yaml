@@ -2283,12 +2283,12 @@ lvgl:
         # timer
         - label:
             id: timer_value2
-            x: 380
+            x: 318
             y: 160
-            width: 100
+            width: 150
             bg_opa: COVER
             text_font: MONTSERRAT_18
-            text_align: left
+            text_align: right
             text: "--:--:--"
             hidden: ${Disable_Timer}
             clickable: 'true'
