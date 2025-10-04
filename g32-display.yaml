@@ -874,14 +874,52 @@ lvgl:
                 hidden: true
             - label: # time hours:minutes:seconds
                 id: display_time
-                x: 200
+                x: 165
                 y: 0
                 text_font: MONTSERRAT_20
                 text_color: 0xffffff
-                text_align: LEFT
-                width: 100
+                text_align: CENTER
+                width: 150
+                text: "00:00:00"
+                hidden: !lambda |-
+                  return (!id(show_time) && ${Disable_Timer});
+                clickable: true
+                on_press:
+                  - if:
+                      condition:
+                        lambda: 'return ${Disable_Timer} == false;'
+                      then:
+                        - if:
+                            condition:
+                              or:
+                                - lambda: 'return lv_scr_act() == id(arcs_page)->obj;'
+                                - lambda: 'return lv_scr_act() == id(numbers_page)->obj;'
+                            then:
+                              - lambda: |-
+                                  id(page_index) = (lv_scr_act() == id(arcs_page)->obj ? 1 : 2);
+                              - lvgl.page.show: timer_page
+            - label:
+                id: timer_value
+                x: 165
+                y: 0
+                width: 150
+                bg_opa: COVER
+                text_font: MONTSERRAT_18
+                text_align: CENTER
                 text: "00:00:00"
                 hidden: true
+                clickable: 'true'
+                on_press:
+                  - if:
+                      condition:
+                        or:
+                          - lambda: 'return lv_scr_act() == id(arcs_page)->obj;'
+                          - lambda: 'return lv_scr_act() == id(numbers_page)->obj;'
+                      then:
+                        - lambda: |-
+                            id(page_index) = (lv_scr_act() == id(arcs_page)->obj ? 1 : 2);
+                        - lvgl.page.show: timer_page                
+
       - obj:
           id: status_bar_bottom
           x: 0
@@ -1563,23 +1601,6 @@ lvgl:
             text_align: left
             text: "Temperatursensoren"
             hidden: !lambda return (id(active_sensors) == 0);
-
-        # timer
-        - label:
-            id: timer_value
-            x: 318
-            y: 160
-            width: 150
-            bg_opa: COVER
-            text_font: MONTSERRAT_18
-            text_align: right
-            text: "--:--:--"
-            hidden: ${Disable_Timer}
-            clickable: 'true'
-            on_press:
-              - lambda: |-
-                  id(page_index) = 1;
-              - lvgl.page.show: timer_page
 
     # main page with numbers
     - id: numbers_page
@@ -2279,24 +2300,6 @@ lvgl:
             text_align: left
             text: "Temperatursensoren"
             hidden: !lambda return (id(active_sensors) == 0);
-
-        # timer
-        - label:
-            id: timer_value2
-            x: 318
-            y: 160
-            width: 150
-            bg_opa: COVER
-            text_font: MONTSERRAT_18
-            text_align: right
-            text: "--:--:--"
-            hidden: ${Disable_Timer}
-            clickable: 'true'
-            on_press:
-              - lambda: |-
-                  id(page_index) = 2;
-              - lvgl.page.show: timer_page
-
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: timer_page
       skip: true
@@ -2410,7 +2413,10 @@ lvgl:
                     id(helper_s) = 0;
                     id(timer_alarm) = false;
                     id(timer_active) = false;
-
+                - lvgl.label.update:
+                    id: timer_value
+                    hidden: !lambda |-
+                      return (${Disable_Timer} == true || (!id(timer_active) && !id(timer_alarm)));
         - button:
             x: 398
             y: 60
@@ -2439,6 +2445,10 @@ lvgl:
                     - lvgl.page.show: arcs_page
                   else:
                     - lvgl.page.show: numbers_page
+              - lvgl.label.update:
+                  id: timer_value
+                  hidden: !lambda |-
+                    return ((${Disable_Timer} == true) || (!id(timer_active) && !id(timer_alarm)));
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: sensor_limits_page
@@ -3133,18 +3143,21 @@ binary_sensor:
 script:
   - id: time_update
     then:
-      - lvgl.label.update:
-          id: display_time
-          text: !lambda |-
-            static char time_buf[16];
-            auto now = id(ha_time).now();
-            snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", now.hour, now.minute, now.second);
-            return time_buf;
-      - lvgl.label.update:
-          id: display_time
-          hidden: !lambda |-
-            return (!id(show_time));
-
+      - if:
+          condition:
+            lambda: 'return id(show_time);'
+          then:
+            - lvgl.label.update:
+                id: display_time
+                text: !lambda |-
+                  static char time_buf[16];
+                  auto now = id(ha_time).now();
+                  snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", now.hour, now.minute, now.second);
+                  return time_buf;
+            - lvgl.label.update:
+                id: display_time
+                hidden: !lambda |-
+                  return (!id(show_time) && ${Disable_Timer});
   - id: timer_update
     then:
       - lvgl.label.update:
@@ -3187,7 +3200,7 @@ script:
                 return ("00:00:00");
               }
             } else {
-              return ("-- : -- : --");
+              return ("");
             }
       - lvgl.label.update:
           id: timer_value
@@ -3197,25 +3210,3 @@ script:
             } else {
               return lv_color_hex(0xffffff);
             }
-      - lvgl.label.update:
-          id: timer_value2
-          text: !lambda |-
-            if( id(timer_active) == true ) {
-              if( id(timer_alarm) == false ) {
-                static char time_buf[16];
-                snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", id(timer_h), id(timer_m), id(timer_s));
-                return time_buf;
-              } else {
-                return ("00:00:00");
-              }
-            } else {
-              return ("-- : -- : --");
-            }
-          text_color: !lambda |-
-            if( id(timer_alarm) == true ) {
-              return lv_color_hex(0xff0000);
-            } else {
-              return lv_color_hex(0xffffff);
-            }
-
-
