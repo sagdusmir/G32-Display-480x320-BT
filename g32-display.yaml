@@ -537,6 +537,9 @@ globals:
     type: int
     initial_value: '0'
 
+  - id: last_sensor_lower_digits  # set limits page
+    type: int
+    initial_value: '0'
 
 #-------------------------------------------
 # for screen timeout
@@ -998,7 +1001,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}1 Temperaturlimit:";
+                          return "${Zone_Text}1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1067,7 +1070,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}2 Temperaturlimit:";
+                          return "${Zone_Text}2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1136,7 +1139,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}3 Temperaturlimit:";
+                          return "${Zone_Text}3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1205,7 +1208,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}4 Temperaturlimit:";
+                          return "${Zone_Text}4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1282,7 +1285,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}1 Temperaturlimit:";
+                          return "${Sensor_Text}1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1359,7 +1362,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}2 Temperaturlimit:";
+                          return "${Sensor_Text}2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1436,7 +1439,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}3 Temperaturlimit:";
+                          return "${Sensor_Text}3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1513,7 +1516,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}4 Temperaturlimit:";
+                          return "${Sensor_Text}4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1655,7 +1658,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}1 Temperaturlimit:";
+                          return "${Zone_Text}1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1730,7 +1733,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}2 Temperaturlimit:";
+                          return "${Zone_Text}2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1805,7 +1808,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}3 Temperaturlimit:";
+                          return "${Zone_Text}3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1880,7 +1883,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Zone_Text}4 Temperaturlimit:";
+                          return "${Zone_Text}4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -1983,7 +1986,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}1 Temperaturlimit:";
+                          return "${Sensor_Text}1 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2067,7 +2070,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}2 Temperaturlimit:";
+                          return "${Sensor_Text}2 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2151,7 +2154,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}3 Temperaturlimit:";
+                          return "${Sensor_Text}3 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2235,7 +2238,7 @@ lvgl:
                     - lvgl.label.update:
                         id: sensor_limit_headline_label
                         text: !lambda |-
-                          return "${Sensor_Text}4 Temperaturlimit:";
+                          return "${Sensor_Text}4 Alarm";
                     - lvgl.label.update:
                         id: sensor_limit_label
                         text: !lambda |-
@@ -2441,28 +2444,112 @@ lvgl:
     - id: sensor_limits_page
       skip: true
       pad_all: 0
+      on_load:
+        then:
+          - lvgl.widget.refresh: sensor_limits_max_value
+          - lambda: |-
+              // Clamp sensor_limit_value to sensor_max_value if needed
+              if (id(sensor_limit_value) > id(sensor_max_value)) {
+                id(sensor_limit_value) = id(sensor_max_value);
+              }
+              int max_val = id(sensor_max_value);
+              int max_h = max_val / 100;
+              // Set hundreds options (0 to max_h)
+              std::string h_opts = "";
+              for (int i = 0; i <= max_h; i++) {
+                h_opts += std::to_string(i);
+                if (i < max_h) h_opts += "\n";
+              }
+              if (h_opts.empty()) h_opts = "0"; // Fallback for max_val < 100
+              lv_roller_set_options(id(sensor_limits_hundreds_roller)->obj, h_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+              // Set tens and ones to full 0-9 initially
+              std::string d_opts = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9";
+              lv_roller_set_options(id(sensor_limits_tens_roller)->obj, d_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+              lv_roller_set_options(id(sensor_limits_ones_roller)->obj, d_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+              // Set initial selected indices based on current sensor_limit_value
+              int cur_val = id(sensor_limit_value);
+              lv_roller_set_selected(id(sensor_limits_hundreds_roller)->obj, cur_val / 100, LV_ANIM_OFF);
+              int h = lv_roller_get_selected(id(sensor_limits_hundreds_roller)->obj); // get actual after possible clamp
+              int intended_t = (cur_val / 10) % 10;
+              lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, intended_t, LV_ANIM_OFF);
+              int intended_o = cur_val % 10;
+              lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, intended_o, LV_ANIM_OFF);
+              // Trigger hundreds on_value to apply any initial constraints to tens/ones
+              int max_t = 9;
+              if (h == max_val / 100) {
+                max_t = (max_val % 100) / 10;
+              }
+              std::string t_opts = "";
+              for (int i = 0; i <= max_t; i++) {
+                t_opts += std::to_string(i);
+                if (i < max_t) t_opts += "\n";
+              }
+              if (t_opts.empty()) t_opts = "0";
+              const char* current_t = lv_roller_get_options(id(sensor_limits_tens_roller)->obj);
+              if (t_opts != std::string(current_t)) {
+                lv_roller_set_options(id(sensor_limits_tens_roller)->obj, t_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                // Set back to intended after possible reset
+                int clamped_t = std::min(intended_t, max_t);
+                lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, clamped_t, LV_ANIM_OFF);
+              }
+              int cur_t = lv_roller_get_selected(id(sensor_limits_tens_roller)->obj);
+              int max_o = 9;
+              if (h == max_val / 100 && cur_t == (max_val % 100) / 10) {
+                max_o = max_val % 10;
+              }
+              std::string o_opts = "";
+              for (int i = 0; i <= max_o; i++) {
+                o_opts += std::to_string(i);
+                if (i < max_o) o_opts += "\n";
+              }
+              if (o_opts.empty()) o_opts = "0";
+              const char* current_o = lv_roller_get_options(id(sensor_limits_ones_roller)->obj);
+              if (o_opts != std::string(current_o)) {
+                lv_roller_set_options(id(sensor_limits_ones_roller)->obj, o_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                // Set back to intended after possible reset
+                int clamped_o = std::min(intended_o, max_o);
+                lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, clamped_o, LV_ANIM_OFF);
+              }
+              int cur_o = lv_roller_get_selected(id(sensor_limits_ones_roller)->obj);
+              // Update value/slider if clamped
+              if (cur_t != intended_t || cur_o != intended_o) {
+                cur_val = h * 100 + cur_t * 10 + cur_o;
+                id(sensor_limit_value) = cur_val;
+              }
+              lv_slider_set_value(sensor_limit_slider, id(sensor_limit_value), LV_ANIM_OFF);
+              lv_label_set_text(sensor_limit_label, (std::to_string(id(sensor_limit_value)) + "°C").c_str());
+              id(last_sensor_lower_digits) = id(sensor_limit_value) % 100;
       widgets:
         - label:
             id: sensor_limit_headline_label
             x: 0
-            y: 10
-            width: 440
-            text_font: MONTSERRAT_26
-            text_align: LEFT
-            text: "Sensor x Temperaturlimit:"
+            y: 40
+            width: 480
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "Sensor x Alarm"
         - label:
-            id: sensor_limit_label
-            x: 350
-            y: 10
-            text_font: MONTSERRAT_26
-            text_align: RIGHT
-            text: "0°C"
+            x: 22
+            y: 110
+            width: 40
+            text_font: MONTSERRAT_16
+            text_align: CENTER
+            text: "0"
+        - label:
+            id: sensor_limits_max_value
+            x: 418
+            y: 110
+            width: 40
+            text_font: MONTSERRAT_16
+            text_align: CENTER
+            text: !lambda |-
+              return to_string(static_cast<int>(id(sensor_max_value)));
         - slider:
             id: sensor_limit_slider
-            x: 115
-            y: 100
+            x: 42
+            y: 80
             height: 20
-            width: 250
+            width: 396
             radius: 5
             min_value: 0
             max_value: 500
@@ -2478,175 +2565,241 @@ lvgl:
               - lvgl.label.update:
                   id: sensor_limit_label
                   text: !lambda |-
-                    if( x <= id(sensor_max_value) ) {
-                      return (to_string(static_cast<int>(x))+"°C").c_str();
-                    } else {
-                      return (to_string(static_cast<int>(id(sensor_max_value)))+"°C").c_str();
-                    }
-        - button:
-            x: 30
-            y: 90
-            width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "-1"
-            on_click:
+                    return (to_string(static_cast<int>(id(sensor_limit_value))) + "°C").c_str();
               - lambda: |-
-                  if (id(sensor_limit_value) > 0) {
-                    id(sensor_limit_value) -= 1;
-                  } else {
-                    id(sensor_limit_value) = 0;
-                  }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-        - button:
-            x: 30
-            y: 140
-            width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "-10"
-            on_click:
+                  int val = id(sensor_limit_value);
+                  lv_roller_set_selected(id(sensor_limits_hundreds_roller)->obj, val / 100, LV_ANIM_OFF);
+                  lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, (val / 10) % 10, LV_ANIM_OFF);
+                  lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, val % 10, LV_ANIM_OFF);
               - lambda: |-
-                  if (id(sensor_limit_value) >= 10) {
-                    id(sensor_limit_value) -= 10;
-                  } else {
-                    id(sensor_limit_value) = 0;
+                  int val = id(sensor_limit_value);
+                  int h = val / 100;
+                  int max_val = id(sensor_max_value);
+                  int max_t = 9;
+                  if (h == max_val / 100) {
+                    max_t = (max_val % 100) / 10;
                   }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-        - button:
-            x: 30
-            y: 190
+                  int intended_t = (val / 10) % 10;
+                  std::string t_opts = "";
+                  for (int i = 0; i <= max_t; i++) {
+                    t_opts += std::to_string(i);
+                    if (i < max_t) t_opts += "\n";
+                  }
+                  if (t_opts.empty()) t_opts = "0";
+                  const char* current_t = lv_roller_get_options(id(sensor_limits_tens_roller)->obj);
+                  if (t_opts != std::string(current_t)) {
+                    lv_roller_set_options(id(sensor_limits_tens_roller)->obj, t_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                    int clamped_t = std::min(intended_t, max_t);
+                    lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, clamped_t, LV_ANIM_OFF);
+                  }
+                  int cur_t = lv_roller_get_selected(id(sensor_limits_tens_roller)->obj);
+                  int max_o = 9;
+                  if (h == max_val / 100 && cur_t == (max_val % 100) / 10) {
+                    max_o = max_val % 10;
+                  }
+                  int intended_o = val % 10;
+                  std::string o_opts = "";
+                  for (int i = 0; i <= max_o; i++) {
+                    o_opts += std::to_string(i);
+                    if (i < max_o) o_opts += "\n";
+                  }
+                  if (o_opts.empty()) o_opts = "0";
+                  const char* current_o = lv_roller_get_options(id(sensor_limits_ones_roller)->obj);
+                  if (o_opts != std::string(current_o)) {
+                    lv_roller_set_options(id(sensor_limits_ones_roller)->obj, o_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                    int clamped_o = std::min(intended_o, max_o);
+                    lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, clamped_o, LV_ANIM_OFF);
+                  }
+                  int cur_o = lv_roller_get_selected(id(sensor_limits_ones_roller)->obj);
+                  // Update value/slider if clamped
+                  if (cur_t != intended_t || cur_o != intended_o) {
+                    val = h * 100 + cur_t * 10 + cur_o;
+                    id(sensor_limit_value) = val;
+                    lv_slider_set_value(sensor_limit_slider, val, LV_ANIM_OFF);
+                    lv_label_set_text(sensor_limit_label, (std::to_string(val) + "°C").c_str());
+                  }
+              - lambda: id(last_sensor_lower_digits) = id(sensor_limit_value) % 100;
+
+        - roller:
+            id: sensor_limits_hundreds_roller
+            x: 145
+            y: 130
             width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "-100"
-            on_click:
+            text_font: MONTSERRAT_20
+            options: [] # dynamically set
+            selected:
+              bg_color: 0x555555
+            on_value:
               - lambda: |-
-                  if (id(sensor_limit_value) >= 100) {
-                    id(sensor_limit_value) -= 100;
-                  } else {
-                    id(sensor_limit_value) = 0;
+                  int new_h = x;
+                  int max_val = id(sensor_max_value);
+                  int lower = id(last_sensor_lower_digits);
+                  int intended = new_h * 100 + lower;
+                  bool clamped = false;
+                  if (intended > max_val) {
+                    intended = max_val;
+                    clamped = true;
                   }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-        - button:
-            x: 390
-            y: 90
+                  id(sensor_limit_value) = intended;
+                  int max_t = 9;
+                  if (new_h == max_val / 100) {
+                    max_t = (max_val % 100) / 10;
+                  }
+                  std::string t_opts = "";
+                  for (int i = 0; i <= max_t; i++) {
+                    t_opts += std::to_string(i);
+                    if (i < max_t) t_opts += "\n";
+                  }
+                  if (t_opts.empty()) t_opts = "0";
+                  const char* current_t_opts = lv_roller_get_options(id(sensor_limits_tens_roller)->obj);
+                  if (t_opts != std::string(current_t_opts)) {
+                    lv_roller_set_options(id(sensor_limits_tens_roller)->obj, t_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                  }
+                  int new_t = (intended / 10) % 10;
+                  lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, new_t, LV_ANIM_OFF);
+                  int cur_t = new_t;
+                  int max_o = 9;
+                  if (new_h == max_val / 100 && cur_t == (max_val % 100) / 10) {
+                    max_o = max_val % 10;
+                  }
+                  std::string o_opts = "";
+                  for (int i = 0; i <= max_o; i++) {
+                    o_opts += std::to_string(i);
+                    if (i < max_o) o_opts += "\n";
+                  }
+                  if (o_opts.empty()) o_opts = "0";
+                  const char* current_o_opts = lv_roller_get_options(id(sensor_limits_ones_roller)->obj);
+                  if (o_opts != std::string(current_o_opts)) {
+                    lv_roller_set_options(id(sensor_limits_ones_roller)->obj, o_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                  }
+                  int new_o = intended % 10;
+                  lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, new_o, LV_ANIM_OFF);
+                  lv_slider_set_value(sensor_limit_slider, intended, LV_ANIM_OFF);
+                  lv_label_set_text(sensor_limit_label, (std::to_string(intended) + "°C").c_str());
+                  if (!clamped) {
+                    id(last_sensor_lower_digits) = intended % 100;
+                  }
+        - roller:
+            id: sensor_limits_tens_roller
+            x: 210
+            y: 130
             width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "+1"
-            on_click:
+            text_font: MONTSERRAT_20
+            options: [] # dynamically set
+            selected:
+              bg_color: 0x555555
+            on_value:
               - lambda: |-
-                  if (id(sensor_limit_value) < id(sensor_max_value)) {
-                    id(sensor_limit_value) += 1;
-                  } else {
-                    id(sensor_limit_value) = id(sensor_max_value);
+                  int t = x;
+                  int h = lv_roller_get_selected(id(sensor_limits_hundreds_roller)->obj);
+                  int max_val = id(sensor_max_value);
+                  int max_o = 9;
+                  if (h == max_val / 100 && t == (max_val % 100) / 10) {
+                    max_o = max_val % 10;
                   }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-        - button:
-            x: 390
-            y: 140
+                  int prev_o = lv_roller_get_selected(id(sensor_limits_ones_roller)->obj);
+                  std::string o_opts = "";
+                  for (int i = 0; i <= max_o; i++) {
+                    o_opts += std::to_string(i);
+                    if (i < max_o) o_opts += "\n";
+                  }
+                  if (o_opts.empty()) o_opts = "0";
+                  const char* current_o_opts = lv_roller_get_options(id(sensor_limits_ones_roller)->obj);
+                  if (o_opts != std::string(current_o_opts)) {
+                    lv_roller_set_options(id(sensor_limits_ones_roller)->obj, o_opts.c_str(), LV_ROLLER_MODE_NORMAL);
+                  }
+                  int clamped_o = std::min(prev_o, max_o);
+                  lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, clamped_o, LV_ANIM_OFF);
+                  int cur_o = clamped_o;
+                  int val = h * 100 + t * 10 + cur_o;
+                  id(sensor_limit_value) = val;
+                  lv_slider_set_value(sensor_limit_slider, val, LV_ANIM_OFF);
+                  lv_label_set_text(sensor_limit_label, (std::to_string(val) + "°C").c_str());
+                  id(last_sensor_lower_digits) = val % 100;
+        - roller:
+            id: sensor_limits_ones_roller
+            x: 275
+            y: 130
             width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "+10"
-            on_click:
+            text_font: MONTSERRAT_20
+            options: [] # dynamically set
+            selected:
+              bg_color: 0x555555
+            on_value:
               - lambda: |-
-                  if (id(sensor_limit_value) <= (id(sensor_max_value)-10)) {
-                    id(sensor_limit_value) += 10;
-                  } else {
-                    id(sensor_limit_value) = id(sensor_max_value);
-                  }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
+                  int o = x;
+                  int h = lv_roller_get_selected(id(sensor_limits_hundreds_roller)->obj);
+                  int t = lv_roller_get_selected(id(sensor_limits_tens_roller)->obj);
+                  int val = h * 100 + t * 10 + o;
+                  id(sensor_limit_value) = val;
+                  lv_slider_set_value(sensor_limit_slider, val, LV_ANIM_OFF);
+                  lv_label_set_text(sensor_limit_label, (std::to_string(val) + "°C").c_str());
+                  id(last_sensor_lower_digits) = val % 100;
+        - label:
+            x: 340
+            y: 183
+            text_font: MONTSERRAT_20
+            text_align: LEFT
+            text: "°C"
+
+        - label:
+            id: sensor_limit_label
+            x: 350
+            y: 130
+            text_font: MONTSERRAT_26
+            text_align: RIGHT
+            text: "0°C"
+            text_color: 0 # not visible - for debugging slider + rollers + stored value
 
         - button:
-            x: 390
-            y: 190
-            width: 60
-            height: 40
-            bg_color: 0x333333
-            clickable: true
-            widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "+100"
-            on_click:
-              - lambda: |-
-                  if (id(sensor_limit_value) <= (id(sensor_max_value)-100) ) {
-                    id(sensor_limit_value) += 100;
-                  } else {
-                    id(sensor_limit_value) = id(sensor_max_value);
-                  }
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
-
-        - button:
-            x: 200
-            y: 260
-            width: 80
-            height: 40
+            x: 12
+            y: 160
+            width: 70
+            height: 100
             bg_color: 0x555555
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "CLR"
-            on_click:
-              then:
-              - lambda: |-
-                  id(sensor_limit_value) = 0;
-              - lvgl.slider.update:
-                  id: sensor_limit_slider
-                  value: !lambda return id(sensor_limit_value);
+                  bg_color: 0x555555
 
         - button:
-            x: 370
-            y: 260
-            width: 80
-            height: 40
+            x: 12
+            y: 160
+            width: 70
+            height: 100
+            bg_color: 0x555555
+            widgets:
+              - label:
+                  align: CENTER
+                  text_font: MONTSERRAT_26
+                  text: "CLR"
+                  bg_color: 0x555555
+            on_click:
+              then:
+                - lambda: |-
+                    id(sensor_limit_value) = 0;
+                    id(last_sensor_lower_digits) = 0;
+                - lvgl.slider.update:
+                    id: sensor_limit_slider
+                    value: !lambda return id(sensor_limit_value);
+                - lambda: |-
+                    lv_roller_set_selected(id(sensor_limits_hundreds_roller)->obj, 0, LV_ANIM_OFF);
+                    lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, 0, LV_ANIM_OFF);
+                    lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, 0, LV_ANIM_OFF);
+        - button:
+            x: 398
+            y: 160
+            width: 70
+            height: 100
             bg_color: 0x555555
             widgets:
               - label:
                   align: CENTER
                   text_font: MONTSERRAT_26
                   text: "OK"
+                  bg_color: 0x555555
             on_click:
               then:
               - lambda: |-
