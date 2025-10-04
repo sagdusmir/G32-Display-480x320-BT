@@ -558,14 +558,18 @@ number:
 # Homeassistant or SNTP Time platform
 #-------------------------------------------
 time:
-#  platform: sntp
-#  id: ha_time
-#  servers:
-#   - ntp0.ntp-servers.net
-#   - ntp1.ntp-servers.net
-#   - ntp2.ntp-servers.net
-  platform: homeassistant
+  # either 
+  platform: sntp
   id: ha_time
+  servers:
+    - ntp0.ntp-servers.net
+    - ntp1.ntp-servers.net
+    - ntp2.ntp-servers.net
+
+  # or
+  # platform: homeassistant
+  # id: ha_time
+
   timezone: Europe/Berlin
   on_time_sync:
     - script.execute: time_update
