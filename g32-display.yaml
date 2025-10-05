@@ -79,7 +79,7 @@ substitutions:
 # sollen für Zonen und Sensoren Temperaturlimits gesetzt werden können? true = Ja, false = Nein
   Enable_Temperature_Limits: 'true'
 
-# Maximal-Temperatur für Sensoren setzen. Z.B. 130 (°C) für Kerntemperatur, 300 für Garraum:
+# Maximal-Temperatur für Sensoren setzen. Z.B. 130 (°C) für Kerntemperatur, 500 für Garraum:
   Sensor1_Max: "130"
   Sensor2_Max: "130"
   Sensor3_Max: "130"
@@ -137,6 +137,12 @@ esphome:
     name: "g32.bt_display480_320"
     version: ${version}
 
+  on_boot:
+    priority: 600
+    then:
+      - lambda: |-
+          id(min_gas_value) = id(settings_min_gas_value_persistent);
+          id(min_soc_value) = id(settings_min_soc_value_persistent);
 esp32:
 # use either board: or variant:
   board: esp32-s3-devkitc-1
@@ -209,20 +215,30 @@ wifi:
     ssid: ${ap_ssid}
     password: ${ap_password}
 
-#esp32_ble_tracker:
-#  on_ble_advertise:
-#    then:
-#      - lambda: |-
-#          if (x.get_name().rfind("OWG-G32C", 0) == 0) {
-#            ESP_LOGI("ble_adv", "G32 gefunden");
-#            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-#            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-#          }
-#          if (x.get_name().rfind("MEATER+", 0) == 0) {
-#            ESP_LOGI("ble_adv", "Meater+ gefunden");
-#            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-#            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-#          }
+esp32_ble_tracker:
+  # start / stop scanning:
+  # on_...:
+  #   then:
+  #     - esp32_ble_tracker.start_scan:
+  #         duration: 30s  # Optional: Scan for a specific duration (defaults to continuous if omitted).  
+  # on_...:
+  #   then:
+  #     - esp32_ble_tracker.stop_scan:
+  scan_parameters:
+    active: false  # Start with scanning disabled.
+  on_ble_advertise:
+    then:
+      - lambda: |-
+          if (x.get_name().rfind("OWG-G32C", 0) == 0) {
+            ESP_LOGI("ble_adv", "G32 gefunden");
+            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          }
+          if (x.get_name().rfind("MEATER+", 0) == 0) {
+            ESP_LOGI("ble_adv", "Meater+ gefunden");
+            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+          }
 
 ble_client:
   - mac_address: ${g32_mac_address}
@@ -541,6 +557,17 @@ globals:
     type: int
     initial_value: '0'
 
+  # persisted values
+  - id: settings_min_gas_value_persistent
+    type: int
+    initial_value: ${Min_Gas}
+    restore_value: true
+  - id: settings_min_soc_value_persistent
+    type: int
+    initial_value: ${Min_SOC}
+    restore_value: true
+
+
 #-------------------------------------------
 # for screen timeout
 #-------------------------------------------
@@ -750,6 +777,19 @@ lvgl:
                 text_align: LEFT
                 width: 50
                 text: "G32"
+
+                clickable: true
+                on_press:
+                  - if:
+                      condition:
+                        or:
+                          - lambda: 'return lv_scr_act() == id(arcs_page)->obj;'
+                          - lambda: 'return lv_scr_act() == id(numbers_page)->obj;'
+                      then:
+                        - lambda: |-
+                            id(page_index) = (lv_scr_act() == id(arcs_page)->obj ? 1 : 2);
+                        - lvgl.page.show: settings_page
+
             - obj: # symbol for batter low warning
                 id: battery_symbol_obj
                 x: 420
@@ -2868,7 +2908,84 @@ lvgl:
                   else:
                     - lvgl.page.show: numbers_page
 
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    - id: settings_page
+      skip: true
+      pad_all: 0
+      on_load:
+        then:
+          - lambda: |-
+              lv_slider_set_value(settings_min_gas_slider, id(min_gas_value), LV_ANIM_OFF);
+              lv_event_send(settings_min_gas_slider, LV_EVENT_VALUE_CHANGED, NULL);
+      widgets:
+        - label:
+            x: 0
+            y: 40
+            width: 480
+            text_font: MONTSERRAT_20
+            text_align: CENTER
+            text: "Einstellungen"
+        - slider:
+            id: settings_min_gas_slider
+            x: 25
+            y: 110
+            height: 20
+            width: 430
+            radius: 5
+            min_value: 5
+            max_value: 50
+            bg_color: 0xffffff
+            indicator:
+              bg_color: 0xff0000
+            knob:
+              bg_color: 0xff0000
+            value: "0"
+            adv_hittest: true
+            on_value:
+              - lambda: id(min_gas_value) = x;
+              - lvgl.label.update:
+                  id: settings_min_gas_slider_label
+                  text: !lambda return (std::string("Gas Warnung bei ") + std::to_string(id(min_gas_value)) + "%").c_str();
+        - label:
+            id: settings_min_gas_slider_label
+            x: 0
+            y: 80
+            width: 480
+            text_font: MONTSERRAT_14
+            text_align: CENTER
+            text: " "
+        - button:
+            x: 12
+            y: 243
+            width: 456
+            height: 50
+            bg_color: 0x555555
+            widgets:
+              - label:
+                  align: CENTER
+                  text_font: MONTSERRAT_26
+                  text: "OK"
+                  bg_color: 0x555555
+              - label:
+                  align: CENTER
+                  text_font: MONTSERRAT_12
+                  width: 460
+                  text: "\nBis zum Speichern der Werte kann bis zu 60 Sekunden dauern!"
+                  bg_color: 0x555555
+            on_click:
+              - lambda: |-
+                  id(settings_min_gas_value_persistent) = id(min_gas_value);
+                  id(settings_min_soc_value_persistent) = id(min_soc_value);
+              - if:
+                  condition:
+                    lambda: 'return id(page_index) == 1;'
+                  then:
+                    - lvgl.page.show: arcs_page
+                  else:
+                    - lvgl.page.show: numbers_page
 
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 sensor:
   - platform: adc
     pin: 5
