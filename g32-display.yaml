@@ -2452,6 +2452,21 @@ lvgl:
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     - id: sensor_limits_page
+      # Most of these on_load lambdas of the sensor_limits_page are AI generated to finally
+      # make this work. Just some notes to keep in mind in case someone wants to get rid of
+      # the AI generated chunks od code:
+      # - roller options get dynamically generated to match sensor_max_value (which differs
+      #   for zones and sensors)
+      # - roller options get also dynamically updated once the selected value get nera the
+      #   sensor_max_value so you should not be able to slect values tha exceed the maximum
+      #   value that is allowed.
+      # - this is synced with the horizontal slider as an alternative way to set the quickly
+      #   set the value.
+      # - unfortunately the roller component forgets its value when the options are changed,
+      #   though it does not seem like it because the visual representation suggests otherwise.
+      # - rollers and sliders are restored when the page is loaded, and reset on pressing "CLR"
+      # - finally: the sensor_limit_label is included in the UI for debugging but invisible
+      #   by default.
       skip: true
       pad_all: 0
       on_load:
