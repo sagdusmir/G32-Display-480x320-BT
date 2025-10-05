@@ -874,12 +874,12 @@ lvgl:
                 hidden: true
             - label: # time hours:minutes:seconds
                 id: display_time
-                x: 165
+                x: 195
                 y: 0
                 text_font: MONTSERRAT_20
                 text_color: 0xffffff
-                text_align: CENTER
-                width: 150
+                text_align: LEFT # wenige Bewegung
+                width: 90
                 text: "00:00:00"
                 hidden: !lambda |-
                   return (!id(show_time) && ${Disable_Timer});
@@ -900,12 +900,12 @@ lvgl:
                               - lvgl.page.show: timer_page
             - label:
                 id: timer_value
-                x: 165
+                x: 195
                 y: 0
-                width: 150
+                width: 90
                 bg_opa: COVER
                 text_font: MONTSERRAT_18
-                text_align: CENTER
+                text_align: LEFT # wenige Bewegung
                 text: "00:00:00"
                 hidden: true
                 clickable: 'true'
