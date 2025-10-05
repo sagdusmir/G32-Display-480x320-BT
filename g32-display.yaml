@@ -2797,9 +2797,9 @@ lvgl:
                     id: sensor_limit_slider
                     value: !lambda return id(sensor_limit_value);
                 - lambda: |-
-                    lv_roller_set_selected(id(sensor_limits_hundreds_roller)->obj, 0, LV_ANIM_OFF);
-                    lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, 0, LV_ANIM_OFF);
-                    lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, 0, LV_ANIM_OFF);
+                    lv_roller_set_selected(id(sensor_limits_hundreds_roller)->obj, 0, LV_ANIM_ON);
+                    lv_roller_set_selected(id(sensor_limits_tens_roller)->obj, 0, LV_ANIM_ON);
+                    lv_roller_set_selected(id(sensor_limits_ones_roller)->obj, 0, LV_ANIM_ON);
         - button:
             x: 398
             y: 160
