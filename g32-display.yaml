@@ -557,7 +557,7 @@ globals:
     type: int
     initial_value: '0'
 
-  # persisted values
+  # persisted and temporary values settings
   - id: settings_min_gas_value_persistent
     type: int
     initial_value: ${Min_Gas}
@@ -769,14 +769,14 @@ lvgl:
           hidden: "true"
           radius: 0
           widgets:            
-            - label: # symbol for successfull BT connection
+            - label: # symbol for enetering settings
                 x: 12
                 y: 0
                 text_font: MONTSERRAT_18
                 text_color: 0xffffff
                 text_align: LEFT
-                width: 50
-                text: "G32"
+                width: 180
+                text: "G32 Connected"
 
                 clickable: true
                 on_press:
@@ -864,7 +864,7 @@ lvgl:
                         return (to_string(static_cast<int>(id(battery_soc_value)))+"%").c_str();
             - label: # symbol for successfull BT connection
                 id: g32bt_connect_label
-                x: 390
+                x: 395
                 y: 0
                 text_font: MONTSERRAT_18
                 text_color: 0x00ff00
@@ -874,7 +874,7 @@ lvgl:
                 hidden: true
             - label: # symbol for successfull WIFI connection
                 id: wifi_connect_label
-                x: 360
+                x: 365
                 y: 0
                 text_font: MONTSERRAT_18
                 text_color: 0x00ff00
@@ -884,7 +884,7 @@ lvgl:
                 hidden: true
             - label: # symbol for 'light on'
                 id: light_on_label
-                x: 330
+                x: 335
                 y: 0
                 text_font: MONTSERRAT_18
                 text_color: 0xffff00
@@ -894,7 +894,7 @@ lvgl:
                 hidden: true
             - label: # symbol for 'firebox open'
                 id: firebox_open_label
-                x: 300
+                x: 305
                 y: 0
                 text_font: MONTSERRAT_18
                 text_color: 0x00ff00
@@ -904,7 +904,7 @@ lvgl:
                 hidden: true        
             - label: # symbol for gas low warning
                 id: g32_warning_label
-                x: 120
+                x: 275
                 y: 0
                 text_font: MONTSERRAT_18
                 text_color: 0xff0000
@@ -919,7 +919,7 @@ lvgl:
                 text_font: MONTSERRAT_20
                 text_color: 0xffffff
                 text_align: LEFT # wenige Bewegung
-                width: 90
+                width: 85
                 text: "00:00:00"
                 hidden: !lambda |-
                   return (!id(show_time) && ${Disable_Timer});
@@ -942,7 +942,7 @@ lvgl:
                 id: timer_value
                 x: 195
                 y: 0
-                width: 90
+                width: 85
                 bg_opa: COVER
                 text_font: MONTSERRAT_18
                 text_align: LEFT # wenige Bewegung
