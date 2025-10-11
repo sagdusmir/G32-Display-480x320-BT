@@ -198,7 +198,7 @@ wifi:
             - lvgl.page.show: arcs_page
           else:
             - lvgl.page.show: numbers_page
-      - lvgl.widget.hide: boot_screen
+      - lvgl.widget.hide: [boot_screen, settings_status_bar_top]
       - lvgl.widget.show: [status_bar_top, status_bar_bottom]
   on_disconnect:
     then:
@@ -270,7 +270,7 @@ ble_client:
               - lvgl.page.show: arcs_page
             else:
               - lvgl.page.show: numbers_page
-        - lvgl.widget.hide: boot_screen
+        - lvgl.widget.hide: [boot_screen, settings_status_bar_top]
         - lvgl.widget.show: [status_bar_top, status_bar_bottom]
     on_disconnect:
       then:
@@ -568,14 +568,50 @@ globals:
     initial_value: '0'
 
   # persisted and temporary values settings
+  - id: settings_g32_mac_address_persistent
+    type: std::string
+    initial_value: '"${g32_mac_address}"' 
+    restore_value: true
+    max_restore_data_length: 17
+  - id: settings_g32_mac_address
+    type: std::string
+    initial_value: ""
+    restore_value: true
   - id: settings_min_gas_value_persistent
     type: int
     initial_value: ${Min_Gas}
     restore_value: true
+  - id: settings_min_gas_value
+    type: int
+    initial_value: '0'
   - id: settings_min_soc_value_persistent
     type: int
     initial_value: ${Min_SOC}
     restore_value: true
+  - id: settings_min_soc_value
+    type: int
+    initial_value: '0'
+  - id: settings_hide_soc_persistent
+    type: bool
+    initial_value: ${Hide_Battery_Symbol}
+    restore_value: true
+  - id: settings_hide_soc
+    type: bool
+    initial_value: ${Hide_Battery_Symbol}
+  - id: settings_enable_temperature_limits_persistent
+    type: bool
+    initial_value: ${Enable_Temperature_Limits}
+    restore_value: true
+  - id: settings_enable_temperature_limits
+    type: bool
+    initial_value: ${Enable_Temperature_Limits}
+  - id: settings_hide_inactive_sensors_persistent
+    type: bool
+    initial_value: ${Hide_Inactive_Sensors}
+    restore_value: true
+  - id: settings_hide_inactive_sensors
+    type: bool
+    initial_value: ${Hide_Inactive_Sensors}
 
 
 #-------------------------------------------
@@ -1021,6 +1057,29 @@ lvgl:
                       indicator:
                         bg_color: ${Gas_Bar_Color}
                       value: 0
+
+      - obj:
+          id: settings_status_bar_top
+          x: 0
+          y: 0
+          width: 480
+          height: 22
+          bg_color: 0
+          bg_opa: COVER
+          pad_all: 0
+          border_width: 0
+          hidden: "true"
+          radius: 0
+          widgets:            
+            - label: # symbol for enetering settings
+                x: 0
+                y: 0
+                text_font: MONTSERRAT_18
+                text_color: 0xffffff
+                text_align: CENTER
+                width: 480
+                text: "Einstellungen"
+
   # pages
   pages:
     # main page with arcs
@@ -2924,75 +2983,253 @@ lvgl:
       pad_all: 0
       on_load:
         then:
+          - lvgl.widget.hide: [status_bar_top, status_bar_bottom]
+          - lvgl.widget.show: settings_status_bar_top
           - lambda: |-
-              lv_slider_set_value(settings_min_gas_slider, id(min_gas_value), LV_ANIM_OFF);
-              lv_event_send(settings_min_gas_slider, LV_EVENT_VALUE_CHANGED, NULL);
+              id(settings_min_gas_value) = id(settings_min_gas_value_persistent);
+              id(settings_min_soc_value) = id(settings_min_soc_value_persistent);
+              id(settings_hide_soc) = id(settings_hide_soc_persistent);
+              id(settings_g32_mac_address) = id(settings_g32_mac_address_persistent);
+
+              lv_roller_set_selected(id(settings_min_gas_roller)->obj, id(settings_min_gas_value), LV_ANIM_OFF);
+              lv_roller_set_selected(id(settings_min_soc_roller)->obj, id(settings_min_soc_value), LV_ANIM_OFF);
+          - lvgl.switch.update:
+              id: settings_hide_soc_switch
+              state:
+                checked: !lambda |-
+                  return id(settings_hide_soc) == 0;
+          - lvgl.widget.refresh: settings_mac_address_label
       widgets:
-        - label:
+        - obj:
+            id: settings_menu
             x: 0
-            y: 40
-            width: 480
-            text_font: MONTSERRAT_20
-            text_align: CENTER
-            text: "Einstellungen"
-        - slider:
-            id: settings_min_gas_slider
-            x: 25
-            y: 110
-            height: 20
-            width: 430
-            radius: 5
-            min_value: 5
-            max_value: 50
-            bg_color: 0xffffff
-            indicator:
-              bg_color: 0xff0000
-            knob:
-              bg_color: 0xff0000
-            value: "0"
-            adv_hittest: true
-            on_value:
-              - lambda: id(min_gas_value) = x;
-              - lvgl.label.update:
-                  id: settings_min_gas_slider_label
-                  text: !lambda return (std::string("Gas Warnung bei ") + std::to_string(id(min_gas_value)) + "%").c_str();
-        - label:
-            id: settings_min_gas_slider_label
-            x: 0
-            y: 80
-            width: 480
-            text_font: MONTSERRAT_14
-            text_align: CENTER
-            text: " "
-        - button:
-            x: 12
-            y: 243
-            width: 456
-            height: 50
-            bg_color: 0x555555
+            y: 23
+            height: 276
+            width: 680
+            border_width: 0
+            pad_all: 0
+            bg_color: 0
+            radius: 0
+            hidden: false
             widgets:
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_26
-                  text: "OK"
-                  bg_color: 0x555555
-              - label:
-                  align: CENTER
-                  text_font: MONTSERRAT_12
-                  width: 460
-                  text: "\nBis zum Speichern der Werte kann bis zu 60 Sekunden dauern!"
-                  bg_color: 0x555555
-            on_click:
-              - lambda: |-
-                  id(settings_min_gas_value_persistent) = id(min_gas_value);
-                  id(settings_min_soc_value_persistent) = id(min_soc_value);
-              - if:
-                  condition:
-                    lambda: 'return id(page_index) == 1;'
-                  then:
-                    - lvgl.page.show: arcs_page
-                  else:
-                    - lvgl.page.show: numbers_page
+              - obj:  # mac_address
+                  x: 0
+                  y: 0
+                  width: 160
+                  height: 276
+                  pad_all: 0
+                  border_width: 0
+                  bg_color: 0
+                  radius: 0
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 25
+                        width: 160
+                        text_font: MONTSERRAT_14
+                        text_align: CENTER
+                        text: "MAC Adresse\ndes G32 Connected"
+                    - label:
+                        id: settings_mac_address_label
+                        x: 0
+                        y: 80
+                        width: 160
+                        text_font: MONTSERRAT_18
+                        text_align: CENTER
+                        text: !lambda |-
+                          return id(settings_g32_mac_address);
+                    - button:
+                        id: settings_g32_mac_address_search_button
+                        x: 10
+                        y: 140
+                        width: 140
+                        height: 50
+                        bg_color: 0x555555
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_font: MONTSERRAT_20
+                              text: "Suchen"
+                              bg_color: 0x555555
+                        on_click:
+                          then:
+                            - lvgl.widget.hide: settings_g32_mac_address_search_button
+                            - lvgl.widget.show: settings_g32_mac_address_abort_button
+                            - esp32_ble_tracker.start_scan:
+                    - button:
+                        id: settings_g32_mac_address_abort_button
+                        x: 10
+                        y: 140
+                        width: 140
+                        height: 50
+                        bg_color: 0x555555
+                        hidden: true
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_font: MONTSERRAT_20
+                              text: "Stopp"
+                              bg_color: 0x555555
+                        on_click:
+                          then:
+                            - lvgl.widget.hide: settings_g32_mac_address_abort_button
+                            - lvgl.widget.show: settings_g32_mac_address_search_button
+                            - esp32_ble_tracker.stop_scan:
+                            - lvgl.widget.refresh: settings_mac_address_label
+              - obj:  # min_gas
+                  x: 160
+                  y: 0
+                  width: 160
+                  height: 276
+                  pad_all: 0
+                  border_width: 0
+                  bg_color: 0
+                  radius: 0
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 25
+                        width: 160
+                        text_font: MONTSERRAT_14
+                        text_align: CENTER
+                        text: "Warnung\nGas Level"
+                    - label:
+                        x: 115
+                        y: 134
+                        width: 20
+                        text_font: MONTSERRAT_20
+                        text_align: CENTER
+                        text: "%"
+                    - roller:
+                        id: settings_min_gas_roller
+                        x: 50
+                        y: 80
+                        width: 60
+                        text_font: MONTSERRAT_20
+                        options: ['60','55','50','45','40','35','30','25','20','15','10','05']
+                        selected:
+                          bg_color: 0x555555
+                        on_value:
+                          - lambda: |-
+                              int val = atoi(text.c_str());
+                              id(settings_min_gas_value) = val;
+              - obj:  # min_soc
+                  x: 320
+                  y: 0
+                  width: 160
+                  height: 276
+                  pad_all: 0
+                  border_width: 0
+                  bg_color: 0
+                  radius: 0
+                  widgets:
+                    - label:
+                        x: 0
+                        y: 25
+                        width: 160
+                        text_font: MONTSERRAT_14
+                        text_align: CENTER
+                        text: "Warnung\nBatterie Level"
+                    - label:
+                        x: 115
+                        y: 134
+                        width: 20
+                        text_font: MONTSERRAT_20
+                        text_align: CENTER
+                        text: "%"
+                    - roller:
+                        id: settings_min_soc_roller
+                        x: 50
+                        y: 80
+                        width: 60
+                        text_font: MONTSERRAT_20
+                        options: ['50','40','30','20','10']
+                        selected:
+                          bg_color: 0x555555
+                        on_value:
+                          - lambda: |-
+                              int val = atoi(text.c_str());
+                              id(settings_min_soc_value) = val;
+                    - switch:
+                        id: settings_hide_soc_switch
+                        x: 50
+                        y: 225
+                        width: 60
+                        height: 30
+                        bg_color: 0x555555
+                        indicator:
+                          checked:
+                            bg_color: 0x00ff00
+                        state:
+                          checked: !lambda |-
+                            return id(settings_hide_soc) == 0;
+                        on_value:
+                          - lambda: |-
+                              id(settings_hide_soc) = (x == 0);
+
+
+              - obj:  # okay / abort 
+                  x: 480
+                  y: 0
+                  width: 200
+                  height: 276
+                  pad_all: 0
+                  border_width: 0
+                  bg_color: 0
+                  radius: 0
+                  widgets:
+                    - button:
+                        x: 0
+                        y: 40
+                        width: 200
+                        height: 50
+                        bg_color: 0x555555
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_font: MONTSERRAT_20
+                              text: "Speichern"
+                              bg_color: 0x555555
+                          - lvgl.widget.show: [status_bar_top, status_bar_bottom]
+                          - lvgl.widget.hide: settings_status_bar_top
+                          - if:
+                              condition:
+                                lambda: 'return id(page_index) == 1;'
+                              then:
+                                - lvgl.page.show: arcs_page
+                              else:
+                                - lvgl.page.show: numbers_page              
+                    - button:
+                        x: 0
+                        y: 105
+                        width: 200
+                        height: 50
+                        bg_color: 0x555555
+                        widgets:
+                          - label:
+                              align: CENTER
+                              text_font: MONTSERRAT_20
+                              text: "Abbrechen"
+                              bg_color: 0x555555
+                        on_click:
+                          - lvgl.widget.show: [status_bar_top, status_bar_bottom]
+                          - lvgl.widget.hide: settings_status_bar_top
+                          - if:
+                              condition:
+                                lambda: 'return id(page_index) == 1;'
+                              then:
+                                - lvgl.page.show: arcs_page
+                              else:
+                                - lvgl.page.show: numbers_page              
+                    - label:
+                        x: 0
+                        y: 70  # no idea wha this is
+                        width: 200
+                        height: 60
+                        bg_color: 0
+                        align: CENTER
+                        text_font: MONTSERRAT_12
+                        text: "Das sichere Speichern der\nEinstellungen kann bis zu\n60 Sekunden dauern!"
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
