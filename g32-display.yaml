@@ -64,7 +64,6 @@ substitutions:
   Gas_Bar_Low_Color2: "0xff0000"  # 0xff0000 = Rot
 
 # Batteriesymbol komplett ausgeblenden (kein Akku vorhanden)? true = ausblenden, false = anzeigen :
-#  Hide_Battery_Symbol: 'true'
   Hide_Battery_Symbol: 'false'
 # SOC (in %) des Akkus festlegen, unterhalb dessen das Batteriesymbol in rot angezeigt wird:
   Min_SOC: "25"
@@ -451,10 +450,6 @@ globals:
   - id: active_sensors      # bits set/reset for every active/inactive Sensor
     type: int
     initial_value: '0'
-
-  - id: hide_battery_symbol
-    type: bool
-    initial_value: ${Hide_Battery_Symbol}
 
   - id: show_time           # enables/disables time (HOUR:MINUT) display
     type: bool
@@ -848,7 +843,8 @@ lvgl:
                 border_width: 0
                 border_side: NONE
                 radius: 0
-                hidden: ${Hide_Battery_Symbol}
+                hidden: !lambda |-
+                  return id(settings_hide_soc_persistent);
                 widgets:
                   # symbol for battery low warning
                   - line:
@@ -3190,8 +3186,13 @@ lvgl:
                               text_font: MONTSERRAT_20
                               text: "Speichern"
                               bg_color: 0x555555
+                        on_click:
+                          - lambda: |-
+                              id(settings_hide_soc_persistent) = id(settings_hide_soc);
+                              ESP_LOGI("settings", "hide_soc: %s", id(settings_hide_soc_persistent) ? "true" : "false");
                           - lvgl.widget.show: [status_bar_top, status_bar_bottom]
                           - lvgl.widget.hide: settings_status_bar_top
+                          - lvgl.widget.refresh: battery_symbol_obj
                           - if:
                               condition:
                                 lambda: 'return id(page_index) == 1;'
@@ -3268,7 +3269,7 @@ sensor:
     update_interval: 4s        # new value after 4s*15(=window size) = 60s!
     on_value:
       - lambda: id(battery_soc_value) = x;
-      - lvgl.widget.refresh: [battery_soc_label, battery_symbol, battery_bar]
+      - lvgl.widget.refresh: [battery_symbol_obj, battery_soc_label, battery_symbol, battery_bar]
       - lvgl.bar.update:
           id: battery_bar
           indicator:
