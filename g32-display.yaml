@@ -139,9 +139,7 @@ esphome:
   on_boot:
     priority: 600
     then:
-      - lambda: |-
-          id(min_gas_value) = id(settings_min_gas_value_persistent);
-          id(min_soc_value) = id(settings_min_soc_value_persistent);
+      - esp32_ble_tracker.stop_scan:
 esp32:
 # use either board: or variant:
   board: esp32-s3-devkitc-1
@@ -511,14 +509,6 @@ globals:
     type: int
     initial_value: '0'
 
-  - id: min_soc_value
-    type: int
-    initial_value: ${Min_SOC}
-
-  - id: min_gas_value
-    type: int
-    initial_value: ${Min_Gas}
-
   - id: page_index          # parameter for page
     type: int
     initial_value: '0'
@@ -592,7 +582,7 @@ globals:
     restore_value: true
   - id: settings_hide_soc
     type: bool
-    initial_value: ${Hide_Battery_Symbol}
+    initial_value: 'true'
   - id: settings_enable_temperature_limits_persistent
     type: bool
     initial_value: ${Enable_Temperature_Limits}
@@ -867,7 +857,7 @@ lvgl:
                       line_width: 2
                       line_rounded: false
                       line_color: !lambda |-
-                        if( id(battery_soc_value) <= id(min_soc_value) ) { return lv_color_hex(0xff0000); } else { return lv_color_hex(0x00ff00); }
+                        if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) { return lv_color_hex(0xff0000); } else { return lv_color_hex(0x00ff00); }
                   - bar:
                       id: battery_bar
                       x: 12
@@ -881,7 +871,7 @@ lvgl:
                       # for some unknown reason this code does not work!
                       indicator:
                         bg_color:  !lambda |-
-                          if( id(battery_soc_value) <= id(min_soc_value) ) {
+                          if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
                             return lv_color_hex(0xff0000); // red
                             } else {
                             return lv_color_hex(0x00ff00); // green
@@ -897,7 +887,7 @@ lvgl:
                       text_align: CENTER
                       width: 35
                       text_color: !lambda |-
-                        if( id(battery_soc_value) <= id(min_soc_value) ) {
+                        if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
                           return lv_color_hex(0xff0000); // red
                           } else {
                           return lv_color_hex(0x00ff00); // green
@@ -2987,8 +2977,49 @@ lvgl:
               id(settings_hide_soc) = id(settings_hide_soc_persistent);
               id(settings_g32_mac_address) = id(settings_g32_mac_address_persistent);
 
-              lv_roller_set_selected(id(settings_min_gas_roller)->obj, id(settings_min_gas_value), LV_ANIM_OFF);
-              lv_roller_set_selected(id(settings_min_soc_roller)->obj, id(settings_min_soc_value), LV_ANIM_OFF);
+              // Restore gas roller by value
+              char gas_target[3];
+              int gas_val = id(settings_min_gas_value);
+              snprintf(gas_target, sizeof(gas_target), "%02d", gas_val);  // Format with leading zero if <10
+              const char* opts = lv_roller_get_options(id(settings_min_gas_roller)->obj);
+              const char* pos = opts;
+              int index = 0;
+              while (*pos) {
+                char gas_opt_buf[3];
+                int len = 0;
+                while (*pos && *pos != '\n' && len < 2) {
+                  gas_opt_buf[len++] = *pos++;
+                }
+                gas_opt_buf[len] = '\0';
+                if (*pos == '\n') pos++;
+                if (strcmp(gas_opt_buf, gas_target) == 0) {
+                  lv_roller_set_selected(id(settings_min_gas_roller)->obj, index, LV_ANIM_OFF);
+                  break;
+                }
+                index++;
+              }   
+
+              // Restore soc roller by value (no leading zero needed since all >=10, but using same pattern for consistency)
+              char soc_target[3];
+              int soc_val = id(settings_min_soc_value);
+              snprintf(soc_target, sizeof(soc_target), "%02d", soc_val);  // Format with leading zero if <10
+              opts = lv_roller_get_options(id(settings_min_soc_roller)->obj);
+              pos = opts;
+              index = 0;
+              while (*pos) {
+                char soc_opt_buf[3];
+                int len = 0;
+                while (*pos && *pos != '\n' && len < 2) {
+                  soc_opt_buf[len++] = *pos++;
+                }
+                soc_opt_buf[len] = '\0';
+                if (*pos == '\n') pos++;
+                if (strcmp(soc_opt_buf, soc_target) == 0) {
+                  lv_roller_set_selected(id(settings_min_soc_roller)->obj, index, LV_ANIM_OFF);
+                  break;
+                }
+                index++;
+              }   
           - lvgl.switch.update:
               id: settings_hide_soc_switch
               state:
@@ -3188,7 +3219,12 @@ lvgl:
                               bg_color: 0x555555
                         on_click:
                           - lambda: |-
+                              id(settings_min_gas_value_persistent) = id(settings_min_gas_value);
+                              id(settings_min_soc_value_persistent) = id(settings_min_soc_value);
                               id(settings_hide_soc_persistent) = id(settings_hide_soc);
+                              int val_gas = id(settings_min_gas_value_persistent);
+                              ESP_LOGI("settings", "min_gas_value: %d", val_gas);
+                              ESP_LOGI("settings", "min_soc_value: %d", id(settings_min_soc_value_persistent));
                               ESP_LOGI("settings", "hide_soc: %s", id(settings_hide_soc_persistent) ? "true" : "false");
                           - lvgl.widget.show: [status_bar_top, status_bar_bottom]
                           - lvgl.widget.hide: settings_status_bar_top
@@ -3274,7 +3310,7 @@ sensor:
           id: battery_bar
           indicator:
             bg_color:  !lambda |-
-              if( id(battery_soc_value) <= id(min_soc_value) ) {
+              if( id(battery_soc_value) <= id(settings_min_soc_value_persistent) ) {
                 return lv_color_hex(0xff0000); // red
                 } else {
                 return lv_color_hex(0x00ff00); // green
@@ -3450,22 +3486,12 @@ sensor:
           id: gas_percent_bar
           indicator:
             bg_color: !lambda |-
-              if( x <= id(min_gas_value) ) {
+              if( x <= id(settings_min_gas_value_persistent) ) {
                 return lv_color_hex(${Gas_Bar_Low_Color});
               } else {
                 return lv_color_hex(${Gas_Bar_Color});
               }
-      # old alternative gas bar update
-      # - lvgl.bar.update:
-      #     id: gas_percent_bar2
-      #     indicator:
-      #       bg_color: !lambda |-
-      #         if( x <= id(min_gas_value) ) {
-      #           return lv_color_hex(${Gas_Bar_Low_Color2});
-      #         } else {
-      #           return lv_color_hex(${Gas_Bar_Color2});
-      #         }
-
+    
 
 binary_sensor:
   - platform: gpio
